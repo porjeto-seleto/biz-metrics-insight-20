@@ -25,7 +25,7 @@ const TopSellersCard = ({ currentDate = new Date() }: TopSellersCardProps) => {
     return {
       position: ranking.position,
       name: seller?.name || 'Vendedor não encontrado',
-      team: 'N/A', // Simplified for now
+      team: seller?.team?.name || 'Sem equipe',
       value: ranking.value_sold,
       conversion: ranking.conversion_rate,
       oc: ranking.oc_number || 'N/A'
@@ -38,7 +38,7 @@ const TopSellersCard = ({ currentDate = new Date() }: TopSellersCardProps) => {
     return existing || {
       position: index + 1,
       name: 'Sem dados',
-      team: 'N/A',
+      team: 'Sem equipe',
       value: 0,
       conversion: 0,
       oc: 'N/A'

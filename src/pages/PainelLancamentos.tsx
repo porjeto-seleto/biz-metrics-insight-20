@@ -87,10 +87,12 @@ const PainelLancamentos = () => {
       const cashFlowData = getRankingsByType('cash_flow');
       const newCashFlow = Array(5).fill(null).map((_, index) => {
         const ranking = cashFlowData.find(r => r.position === index + 1);
+        // Get the corresponding value_sold from top_sellers for the same seller
+        const topSellerData = topSellersData.find(ts => ts.seller_id === ranking?.seller_id);
         return ranking ? {
           seller_id: ranking.seller_id,
           oc_number: '',
-          value_sold: 0,
+          value_sold: topSellerData?.value_sold || 0,
           conversion_rate: 0,
           value_received: ranking.value_received,
           profit_margin: 0
@@ -335,17 +337,30 @@ const PainelLancamentos = () => {
                     </Select>
                   </div>
                   
-                  <div>
-                    <Label htmlFor={`received-${index}`}>Valor Recebido (R$)</Label>
-                    <Input 
-                      id={`received-${index}`}
-                      type="number"
-                      step="0.01"
-                      placeholder="0,00"
-                      value={flow.value_received}
-                      onChange={(e) => updateCashFlow(index, 'value_received', parseFloat(e.target.value) || 0)}
-                    />
-                  </div>
+                   <div className="grid grid-cols-2 gap-2">
+                     <div>
+                       <Label htmlFor={`cashflow-sold-${index}`}>Valor Vendido (R$)</Label>
+                       <Input 
+                         id={`cashflow-sold-${index}`}
+                         type="number"
+                         step="0.01"
+                         placeholder="0,00"
+                         value={flow.value_sold}
+                         onChange={(e) => updateCashFlow(index, 'value_sold', parseFloat(e.target.value) || 0)}
+                       />
+                     </div>
+                     <div>
+                       <Label htmlFor={`received-${index}`}>Valor Recebido (R$)</Label>
+                       <Input 
+                         id={`received-${index}`}
+                         type="number"
+                         step="0.01"
+                         placeholder="0,00"
+                         value={flow.value_received}
+                         onChange={(e) => updateCashFlow(index, 'value_received', parseFloat(e.target.value) || 0)}
+                       />
+                     </div>
+                   </div>
                 </div>
               ))}
             </CardContent>

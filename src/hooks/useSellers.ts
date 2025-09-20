@@ -10,6 +10,10 @@ export interface Seller {
   team_id?: string;
   created_at: string;
   updated_at: string;
+  team?: {
+    id: string;
+    name: string;
+  };
 }
 
 export const useSellers = () => {
@@ -21,7 +25,13 @@ export const useSellers = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('sellers')
-        .select('*')
+        .select(`
+          *,
+          team:teams(
+            id,
+            name
+          )
+        `)
         .eq('status', 'active')
         .order('name');
 

@@ -21,19 +21,42 @@ const GlobalGoalCard = () => {
         // Get current month/year in format YYYY-MM
         const currentPeriod = format(new Date(), 'yyyy-MM');
         
-        const { data, error } = await supabase
+        const { data: goalData, error: goalError } = await supabase
           .from('global_goals')
           .select('*')
           .eq('period', currentPeriod)
           .eq('status', 'active')
           .single();
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-          console.error('Erro ao buscar meta global:', error);
+        if (goalError && goalError.code !== 'PGRST116') { // PGRST116 = no rows found
+          console.error('Erro ao buscar meta global:', goalError);
           return;
         }
 
-        setCurrentGoal(data);
+        if (goalData) {
+          // Calculate current_value from daily reports of the current month
+          const startOfMonth = format(new Date(new Date().getFullYear(), new Date().getMonth(), 1), 'yyyy-MM-dd');
+          const endOfMonth = format(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0), 'yyyy-MM-dd');
+          
+          const { data: reportsData, error: reportsError } = await supabase
+            .from('daily_reports')
+            .select('total_effective')
+            .gte('report_date', startOfMonth)
+            .lte('report_date', endOfMonth);
+
+          if (reportsError) {
+            console.error('Erro ao buscar relatórios:', reportsError);
+            setCurrentGoal(goalData);
+            return;
+          }
+
+          const totalEffective = reportsData?.reduce((sum, report) => sum + report.total_effective, 0) || 0;
+
+          setCurrentGoal({
+            ...goalData,
+            current_value: totalEffective
+          });
+        }
       } catch (error) {
         console.error('Erro ao buscar meta global:', error);
       }

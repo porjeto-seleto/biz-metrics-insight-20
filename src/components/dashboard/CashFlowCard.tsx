@@ -22,12 +22,16 @@ const CashFlowCard = ({ currentDate = new Date() }: CashFlowCardProps) => {
   
   const cashFlowWithNames = cashFlowData.map(ranking => {
     const seller = sellers.find(s => s.id === ranking.seller_id);
-    const effectiveness = ranking.value_sold > 0 ? Math.round((ranking.value_received / ranking.value_sold) * 100) : 0;
+    // Get the value_sold from top_sellers ranking for the same seller
+    const topSellersData = getRankingsByType('top_sellers');
+    const topSellerData = topSellersData.find(ts => ts.seller_id === ranking.seller_id);
+    const valueSold = topSellerData?.value_sold || ranking.value_sold || 0;
+    const effectiveness = valueSold > 0 ? Math.round((ranking.value_received / valueSold) * 100) : 0;
     
     return {
       position: ranking.position,
       name: seller?.name || 'Vendedor não encontrado',
-      sold: ranking.value_sold,
+      sold: valueSold,
       received: ranking.value_received,
       effectiveness
     };
