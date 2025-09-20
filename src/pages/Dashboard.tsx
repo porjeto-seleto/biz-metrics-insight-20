@@ -51,18 +51,18 @@ const Dashboard = () => {
       {/* Main Dashboard Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 max-w-[1920px] mx-auto">
         {/* Column 1 - Top 5 Vendedores */}
-        <TopSellersCard />
+        <TopSellersCard currentDate={currentDate} />
         
         {/* Column 2 - Meta Global and Fluxo de Caixa */}
         <div className="grid gap-6 h-full" style={{ gridTemplateRows: '0.6fr 1fr' }}>
           <GlobalGoalCard />
-          <CashFlowCard />
+          <CashFlowCard currentDate={currentDate} />
         </div>
         
         {/* Column 3 - Dash Previsto and Margem de Lucro */}
         <div className="grid gap-6 h-full" style={{ gridTemplateRows: '0.6fr 1fr' }}>
           <PredictedVsActualCard />
-          <ProfitMarginCard />
+          <ProfitMarginCard currentDate={currentDate} />
         </div>
       </div>
 

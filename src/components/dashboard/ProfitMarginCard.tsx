@@ -1,35 +1,43 @@
 import { Percent, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useDailyReports } from "@/hooks/useDailyReports";
+import { useSellers } from "@/hooks/useSellers";
+import { useEffect } from "react";
 
-const ProfitMarginCard = () => {
-  const mockData = [
-    { 
-      position: 1, 
-      name: "JOÃO SILVA", 
-      margin: 22.5 
-    },
-    { 
-      position: 2, 
-      name: "MARIA SANTOS", 
-      margin: 19.8 
-    },
-    { 
-      position: 3, 
-      name: "PEDRO COSTA", 
-      margin: 18.2 
-    },
-    { 
-      position: 4, 
-      name: "ANA LIMA", 
-      margin: 16.7 
-    },
-    { 
-      position: 5, 
-      name: "CARLOS FERREIRA", 
-      margin: 15.3 
-    }
-  ];
+interface ProfitMarginCardProps {
+  currentDate?: Date;
+}
+
+const ProfitMarginCard = ({ currentDate = new Date() }: ProfitMarginCardProps) => {
+  const { getReportByDate, getRankingsByType } = useDailyReports();
+  const { sellers } = useSellers();
+  
+  useEffect(() => {
+    const dateStr = currentDate.toISOString().split('T')[0];
+    getReportByDate(dateStr);
+  }, [currentDate]);
+
+  const profitMarginData = getRankingsByType('profit_margin');
+  
+  const marginWithNames = profitMarginData.map(ranking => {
+    const seller = sellers.find(s => s.id === ranking.seller_id);
+    return {
+      position: ranking.position,
+      name: seller?.name || 'Vendedor não encontrado',
+      margin: ranking.profit_margin
+    };
+  });
+
+  // Fill empty positions if less than 5
+  const displayData = Array(5).fill(null).map((_, index) => {
+    const existing = marginWithNames.find(s => s.position === index + 1);
+    return existing || {
+      position: index + 1,
+      name: 'Sem dados',
+      margin: 0
+    };
+  });
 
   const getMarginColor = (margin: number) => {
     if (margin >= 20) return "text-success";
@@ -52,7 +60,7 @@ const ProfitMarginCard = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {mockData.map((seller) => (
+        {displayData.map((seller) => (
           <div 
             key={seller.position}
             className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"

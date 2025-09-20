@@ -1,45 +1,49 @@
 import { DollarSign, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useDailyReports } from "@/hooks/useDailyReports";
+import { useSellers } from "@/hooks/useSellers";
+import { useEffect } from "react";
 
-const CashFlowCard = () => {
-  const mockData = [
-    { 
-      position: 1, 
-      name: "JOÃO SILVA", 
-      sold: 45850, 
-      received: 41265,
-      effectiveness: 90 
-    },
-    { 
-      position: 2, 
-      name: "MARIA SANTOS", 
-      sold: 38290, 
-      received: 32046,
-      effectiveness: 84 
-    },
-    { 
-      position: 3, 
-      name: "PEDRO COSTA", 
-      sold: 32150, 
-      received: 25720,
-      effectiveness: 80 
-    },
-    { 
-      position: 4, 
-      name: "ANA LIMA", 
-      sold: 28740, 
-      received: 20118,
-      effectiveness: 70 
-    },
-    { 
-      position: 5, 
-      name: "CARLOS FERREIRA", 
-      sold: 25690, 
-      received: 17983,
-      effectiveness: 70 
-    }
-  ];
+interface CashFlowCardProps {
+  currentDate?: Date;
+}
+
+const CashFlowCard = ({ currentDate = new Date() }: CashFlowCardProps) => {
+  const { getReportByDate, getRankingsByType } = useDailyReports();
+  const { sellers } = useSellers();
+  
+  useEffect(() => {
+    const dateStr = currentDate.toISOString().split('T')[0];
+    getReportByDate(dateStr);
+  }, [currentDate]);
+
+  const cashFlowData = getRankingsByType('cash_flow');
+  
+  const cashFlowWithNames = cashFlowData.map(ranking => {
+    const seller = sellers.find(s => s.id === ranking.seller_id);
+    const effectiveness = ranking.value_sold > 0 ? Math.round((ranking.value_received / ranking.value_sold) * 100) : 0;
+    
+    return {
+      position: ranking.position,
+      name: seller?.name || 'Vendedor não encontrado',
+      sold: ranking.value_sold,
+      received: ranking.value_received,
+      effectiveness
+    };
+  });
+
+  // Fill empty positions if less than 5
+  const displayData = Array(5).fill(null).map((_, index) => {
+    const existing = cashFlowWithNames.find(s => s.position === index + 1);
+    return existing || {
+      position: index + 1,
+      name: 'Sem dados',
+      sold: 0,
+      received: 0,
+      effectiveness: 0
+    };
+  });
 
   return (
     <Card className="h-full transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
@@ -50,7 +54,7 @@ const CashFlowCard = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {mockData.map((seller) => (
+        {displayData.map((seller) => (
           <div 
             key={seller.position}
             className="p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
