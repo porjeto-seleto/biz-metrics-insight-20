@@ -1,4 +1,4 @@
-import { Menu, Settings, FileText, ChevronLeft, ChevronRight } from "lucide-react";
+import { Menu, Settings, FileText, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -7,9 +7,11 @@ import emblemaSeleto from "@/assets/emblema-seleto.png";
 interface DashboardHeaderProps {
   currentDate: Date;
   onNavigateDate: (direction: 'prev' | 'next') => void;
+  onRefresh: () => void;
+  isLoading: boolean;
 }
 
-const DashboardHeader = ({ currentDate, onNavigateDate }: DashboardHeaderProps) => {
+const DashboardHeader = ({ currentDate, onNavigateDate, onRefresh, isLoading }: DashboardHeaderProps) => {
   const navigate = useNavigate();
 
   const formatDate = (date: Date) => {
@@ -17,7 +19,7 @@ const DashboardHeader = ({ currentDate, onNavigateDate }: DashboardHeaderProps) 
   };
 
   return (
-    <header className="text-center py-6 px-4">
+    <header className="text-center py-4 px-4 bg-card border-b border-card-border">
       <div className="flex items-center justify-center gap-4 relative">
         {/* Date Navigation - Left Side */}
         <div className="absolute left-0 flex items-center gap-2 bg-card border border-card-border rounded-xl shadow-lg px-4 py-2">
@@ -40,6 +42,17 @@ const DashboardHeader = ({ currentDate, onNavigateDate }: DashboardHeaderProps) 
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
+          
+          {/* Refresh Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRefresh}
+            disabled={isLoading}
+            className="hover:bg-muted ml-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
         <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center p-2">
           <img 
@@ -48,7 +61,7 @@ const DashboardHeader = ({ currentDate, onNavigateDate }: DashboardHeaderProps) 
             className="w-full h-full object-contain"
           />
         </div>
-        <h1 className="text-4xl font-bold text-foreground">
+        <h1 className="text-3xl font-bold text-foreground">
           Dashboard de Vendas Seleto Industrial
         </h1>
         

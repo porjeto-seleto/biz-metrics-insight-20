@@ -85,6 +85,7 @@ const GlobalGoalCard = () => {
   }
 
   const progressPercent = currentGoal.target_value > 0 ? (currentGoal.current_value / currentGoal.target_value) * 100 : 0;
+  const visualProgressPercent = Math.min(progressPercent, 100); // Travar visualmente em 100%
 
   return (
     <Card className="h-full transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
@@ -107,7 +108,7 @@ const GlobalGoalCard = () => {
         <div className="space-y-4">
           <div className="relative">
             <Progress 
-              value={progressPercent} 
+              value={visualProgressPercent} 
               className="w-full h-10 bg-secondary/30"
             />
             <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -118,7 +119,7 @@ const GlobalGoalCard = () => {
             {/* Water effect animation */}
             <div 
               className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary/80 to-primary rounded-full overflow-hidden transition-all duration-1000 ease-out"
-              style={{ width: `${progressPercent}%` }}
+              style={{ width: `${visualProgressPercent}%` }}
             >
               <div className="absolute top-0 right-0 w-full h-full">
                 <div className="absolute top-1/2 -right-1 w-2 h-2 bg-primary-foreground/60 rounded-full animate-bounce"></div>
