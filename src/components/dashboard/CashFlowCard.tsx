@@ -57,13 +57,13 @@ const CashFlowCard = ({ currentDate = new Date() }: CashFlowCardProps) => {
           FLUXO DE CAIXA TOP 5
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-2">
         {displayData.map((seller) => (
           <div 
             key={seller.position}
-            className="p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+            className="p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
           >
-            <div className="grid grid-cols-4 gap-3 items-start">
+            <div className="grid grid-cols-4 gap-2 items-start">
               {/* Colocação */}
               <div className="flex justify-center">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-success/20 text-success font-bold text-sm">
@@ -73,10 +73,10 @@ const CashFlowCard = ({ currentDate = new Date() }: CashFlowCardProps) => {
               
               {/* Vendedor */}
               <div className="min-w-0">
-                <div className="font-semibold text-sm">{seller.name}</div>
+                <div className="font-semibold text-xs">{seller.name}</div>
                 <div className="mt-1">
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/20 text-success border border-success/30">
-                    {seller.effectiveness}% Efetivado
+                  <span className="inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-success/20 text-success border border-success/30">
+                    {seller.effectiveness}%
                   </span>
                 </div>
               </div>
@@ -84,13 +84,13 @@ const CashFlowCard = ({ currentDate = new Date() }: CashFlowCardProps) => {
               {/* Vendido */}
               <div className="text-center">
                 <div className="text-xs text-muted-foreground">Vendido</div>
-                <div className="font-bold text-sm">R$ {seller.sold.toLocaleString('pt-BR')}</div>
+                <div className="font-bold text-xs">R$ {seller.sold.toLocaleString('pt-BR')}</div>
               </div>
               
               {/* Recebido */}
               <div className="text-center">
                 <div className="text-xs text-muted-foreground">Recebido</div>
-                <div className="font-bold text-sm text-success">R$ {seller.received.toLocaleString('pt-BR')}</div>
+                <div className="font-bold text-xs text-success">R$ {seller.received.toLocaleString('pt-BR')}</div>
               </div>
             </div>
           </div>

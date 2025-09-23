@@ -59,30 +59,30 @@ const ProfitMarginCard = ({ currentDate = new Date() }: ProfitMarginCardProps) =
           MARGEM DE LUCRO
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-2">
         {displayData.map((seller) => (
           <div 
             key={seller.position}
-            className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+            className="flex items-center gap-2 p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
           >
             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-warning/20 text-warning font-bold text-sm">
               {seller.position}
             </div>
             
             <div className="flex-1 min-w-0">
-              <div className="font-semibold text-sm">{seller.name}</div>
+              <div className="font-semibold text-xs">{seller.name}</div>
             </div>
             
             <div className="text-right">
-              <div className={`text-2xl font-bold ${getMarginColor(seller.margin)} mb-1`}>
+              <div className={`text-lg font-bold ${getMarginColor(seller.margin)} mb-1`}>
                 {seller.margin}%
               </div>
               <Badge 
                 variant={getMarginBadgeVariant(seller.margin)}
-                className="text-xs flex items-center gap-1"
+                className="text-xs flex items-center gap-1 px-1 py-0"
               >
                 <TrendingUp className="h-3 w-3" />
-                Margem de Lucro
+                Margem
               </Badge>
             </div>
           </div>

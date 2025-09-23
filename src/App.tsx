@@ -22,11 +22,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/dash" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
+          <Route path="/dash" element={<Dashboard />} />
           <Route path="/painel-lancamentos" element={
             <ProtectedRoute>
               <PainelLancamentos />

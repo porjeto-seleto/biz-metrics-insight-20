@@ -34,23 +34,21 @@ const GlobalGoalCard = () => {
         }
 
         if (goalData) {
-          // Calculate current_value from daily reports of the current month
-          const startOfMonth = format(new Date(new Date().getFullYear(), new Date().getMonth(), 1), 'yyyy-MM-dd');
-          const endOfMonth = format(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0), 'yyyy-MM-dd');
-          
-          const { data: reportsData, error: reportsError } = await supabase
+          // Get only the latest daily report (not sum of all reports)
+          const { data: latestReport, error: reportsError } = await supabase
             .from('daily_reports')
             .select('total_effective')
-            .gte('report_date', startOfMonth)
-            .lte('report_date', endOfMonth);
+            .order('report_date', { ascending: false })
+            .limit(1)
+            .maybeSingle();
 
           if (reportsError) {
-            console.error('Erro ao buscar relatórios:', reportsError);
+            console.error('Erro ao buscar relatório mais recente:', reportsError);
             setCurrentGoal(goalData);
             return;
           }
 
-          const totalEffective = reportsData?.reduce((sum, report) => sum + report.total_effective, 0) || 0;
+          const totalEffective = latestReport?.total_effective || 0;
 
           setCurrentGoal({
             ...goalData,

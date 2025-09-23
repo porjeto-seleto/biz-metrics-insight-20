@@ -104,16 +104,64 @@ export const useDailyReports = () => {
         .from('daily_reports')
         .select('*')
         .eq('report_date', date)
-        .single();
+        .maybeSingle();
 
-      if (reportError && reportError.code !== 'PGRST116') {
+      if (reportError) {
         console.error('Error fetching report:', reportError);
         return null;
       }
 
       if (!reportData) {
-        setCurrentReport(null);
-        return null;
+        // Try to get the most recent report to maintain persistence
+        const { data: latestReport, error: latestError } = await supabase
+          .from('daily_reports')
+          .select('*')
+          .order('report_date', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (latestError || !latestReport) {
+          setCurrentReport(null);
+          return null;
+        }
+
+        // Use the latest report data but keep the requested date
+        const persistedReport = {
+          ...latestReport,
+          report_date: date,
+          id: `persisted-${date}`
+        };
+
+        const { data: rankingsData, error: rankingsError } = await supabase
+          .from('daily_rankings')
+          .select(`
+            *,
+            seller:sellers(
+              id,
+              name,
+              email
+            )
+          `)
+          .eq('report_id', latestReport.id)
+          .order('position');
+
+        if (rankingsError) {
+          console.error('Error fetching persisted rankings:', rankingsError);
+          return null;
+        }
+
+        const reportWithRankings = {
+          ...persistedReport,
+          rankings: (rankingsData || []).map(ranking => ({
+            ...ranking,
+            id: `persisted-${ranking.id}`,
+            report_id: persistedReport.id,
+            ranking_type: ranking.ranking_type as 'top_sellers' | 'cash_flow' | 'profit_margin'
+          }))
+        };
+
+        setCurrentReport(reportWithRankings as DailyReport);
+        return reportWithRankings;
       }
 
       const { data: rankingsData, error: rankingsError } = await supabase
