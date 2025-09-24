@@ -36,7 +36,7 @@ const PredictedVsActualCard = () => {
   const gaugePercent = (48200 / 50000) * 100;
 
   const renderLineChart = () => (
-    <ResponsiveContainer width="100%" height={250}>
+    <ResponsiveContainer width="100%" height={200}>
       <RechartsLineChart data={lineData}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="day" />
@@ -61,14 +61,14 @@ const PredictedVsActualCard = () => {
   );
 
   const renderPieChart = () => (
-    <ResponsiveContainer width="100%" height={250}>
+    <ResponsiveContainer width="100%" height={200}>
       <RechartsPieChart>
         <Pie
           data={pieData}
           cx="50%"
           cy="50%"
-          innerRadius={60}
-          outerRadius={100}
+          innerRadius={50}
+          outerRadius={80}
           paddingAngle={2}
           dataKey="value"
         >
@@ -82,8 +82,8 @@ const PredictedVsActualCard = () => {
   );
 
   const renderGaugeChart = () => (
-    <div className="flex items-center justify-center h-[250px]">
-      <div className="relative w-48 h-48">
+    <div className="flex items-center justify-center h-[200px]">
+      <div className="relative w-40 h-40">
         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
           <circle
             cx="50"
@@ -114,54 +114,61 @@ const PredictedVsActualCard = () => {
   );
 
   return (
-    <Card className="transition-all duration-300 hover:shadow-lg hover:scale-[1.01]">
-      <CardHeader className="text-center pb-2">
-        <CardTitle className="text-lg font-bold flex items-center justify-center gap-8">
-          <span className="flex items-center gap-1">
-            <span className="text-primary">Previsto</span>
-            <span className="text-primary font-bold">R$ 50.000</span>
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="text-success">Efetivado</span>
-            <span className="text-success font-bold">R$ 48.200</span>
-          </span>
+    <Card className="h-full transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
+      <CardHeader className="text-center pb-4">
+        <CardTitle className="text-xl font-bold flex items-center justify-center gap-2">
+          <BarChart3 className="h-5 w-5 text-primary" />
+          PREVISTO VS EFETIVADO
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex gap-4">
-        <div className="flex-1">
-          {chartType === 'line' && renderLineChart()}
-          {chartType === 'pie' && renderPieChart()}
-          {chartType === 'gauge' && renderGaugeChart()}
+      <CardContent className="text-center space-y-6">
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <div className="text-sm font-medium text-muted-foreground mb-1">Previsto</div>
+            <div className="text-2xl font-bold text-primary">R$ 50.000</div>
+          </div>
+          <div>
+            <div className="text-sm font-medium text-muted-foreground mb-1">Efetivado</div>
+            <div className="text-2xl font-bold text-success">R$ 48.200</div>
+          </div>
         </div>
         
-        <div className="flex flex-col gap-2 justify-center">
-          <Button
-            variant={chartType === 'line' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setChartType('line')}
-            className="flex items-center gap-1 text-xs"
-          >
-            <LineChart className="h-3 w-3" />
-            Linha
-          </Button>
-          <Button
-            variant={chartType === 'pie' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setChartType('pie')}
-            className="flex items-center gap-1 text-xs"
-          >
-            <PieChart className="h-3 w-3" />
-            Pizza
-          </Button>
-          <Button
-            variant={chartType === 'gauge' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setChartType('gauge')}
-            className="flex items-center gap-1 text-xs"
-          >
-            <Gauge className="h-3 w-3" />
-            Gauge
-          </Button>
+        <div className="space-y-4">
+          <div className="min-h-[200px]">
+            {chartType === 'line' && renderLineChart()}
+            {chartType === 'pie' && renderPieChart()}
+            {chartType === 'gauge' && renderGaugeChart()}
+          </div>
+          
+          <div className="flex justify-center gap-2">
+            <Button
+              variant={chartType === 'line' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setChartType('line')}
+              className="flex items-center gap-1 text-xs"
+            >
+              <LineChart className="h-3 w-3" />
+              Linha
+            </Button>
+            <Button
+              variant={chartType === 'pie' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setChartType('pie')}
+              className="flex items-center gap-1 text-xs"
+            >
+              <PieChart className="h-3 w-3" />
+              Pizza
+            </Button>
+            <Button
+              variant={chartType === 'gauge' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setChartType('gauge')}
+              className="flex items-center gap-1 text-xs"
+            >
+              <Gauge className="h-3 w-3" />
+              Gauge
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

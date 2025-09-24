@@ -30,7 +30,8 @@ export const useSellers = () => {
           *,
           team:teams(
             id,
-            name
+            name,
+            monthly_goal
           )
         `)
         .eq('status', 'active')
