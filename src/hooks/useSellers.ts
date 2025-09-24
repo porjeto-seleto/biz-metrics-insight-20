@@ -13,6 +13,7 @@ export interface Seller {
   team?: {
     id: string;
     name: string;
+    monthly_goal?: number;
   };
 }
 

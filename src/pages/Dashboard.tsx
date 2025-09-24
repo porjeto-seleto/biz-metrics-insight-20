@@ -9,10 +9,17 @@ import GlobalGoalCard from "@/components/dashboard/GlobalGoalCard";
 import CashFlowCard from "@/components/dashboard/CashFlowCard";
 import PredictedVsActualCard from "@/components/dashboard/PredictedVsActualCard";
 import ProfitMarginCard from "@/components/dashboard/ProfitMarginCard";
+import { useDailyReports } from "@/hooks/useDailyReports";
 
 const Dashboard = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
+  const { currentReport, getReportByDate } = useDailyReports();
+
+  useEffect(() => {
+    const dateStr = currentDate.toISOString().split('T')[0];
+    getReportByDate(dateStr);
+  }, [currentDate, getReportByDate]);
 
   // Auto-refresh every 30 minutes
   useEffect(() => {
@@ -58,7 +65,7 @@ const Dashboard = () => {
       <div className="flex-1 p-4 overflow-hidden">
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 h-full max-w-[1920px] mx-auto">
           {/* Column 1 - Top 5 Vendedores */}
-          <TopSellersCard currentDate={currentDate} />
+          {currentReport && <TopSellersCard report={currentReport} />}
           
           {/* Column 2 - Meta Global and Fluxo de Caixa */}
           <div className="grid gap-4 h-full" style={{ gridTemplateRows: '0.6fr 1fr' }}>

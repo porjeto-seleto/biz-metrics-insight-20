@@ -1,24 +1,20 @@
-import { Trophy, Medal, Award } from "lucide-react";
+// src/components/dashboard/TopSellersCard.tsx
+
+import { Trophy, Award } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useDailyReports } from "@/hooks/useDailyReports";
+import { Badge, badgeVariants } from "@/components/ui/badge";
 import { useSellers } from "@/hooks/useSellers";
-import { useEffect } from "react";
+import { DailyReport } from "@/hooks/useDailyReports";
+import { cn } from "@/lib/utils";
 
 interface TopSellersCardProps {
-  currentDate?: Date;
+  report: DailyReport;
 }
 
-const TopSellersCard = ({ currentDate = new Date() }: TopSellersCardProps) => {
-  const { getReportByDate, getRankingsByType } = useDailyReports();
+const TopSellersCard = ({ report }: TopSellersCardProps) => {
   const { sellers } = useSellers();
-  
-  useEffect(() => {
-    const dateStr = currentDate.toISOString().split('T')[0];
-    getReportByDate(dateStr);
-  }, [currentDate]);
 
-  const topSellersData = getRankingsByType('top_sellers');
+  const topSellersData = report.rankings.filter(r => r.ranking_type === 'top_sellers');
   
   const sellersWithNames = topSellersData.map(ranking => {
     const seller = sellers.find(s => s.id === ranking.seller_id);
@@ -26,90 +22,96 @@ const TopSellersCard = ({ currentDate = new Date() }: TopSellersCardProps) => {
       position: ranking.position,
       name: seller?.name || 'Vendedor não encontrado',
       team: seller?.team?.name || 'Sem equipe',
-      value: ranking.value_sold,
-      conversion: ranking.conversion_rate,
+      // ATUALIZADO: Puxando a meta real da equipe do vendedor
+      goal: seller?.team?.monthly_goal || 0, 
+      value: ranking.value_sold || 0,
+      conversion: ranking.conversion_rate || 0,
       oc: ranking.oc_number || 'N/A'
     };
   });
 
-  // Fill empty positions if less than 5
   const displayData = Array(5).fill(null).map((_, index) => {
-    const existing = sellersWithNames.find(s => s.position === index + 1);
-    return existing || {
-      position: index + 1,
-      name: 'Sem dados',
-      team: 'Sem equipe',
-      value: 0,
-      conversion: 0,
-      oc: 'N/A'
+    return sellersWithNames.find(s => s.position === index + 1) || {
+      position: index + 1, name: 'Sem dados', team: 'Sem equipe', goal: 0, value: 0, conversion: 0, oc: 'N/A'
     };
   });
 
   const getPositionIcon = (position: number) => {
+    // ... (código inalterado)
     switch (position) {
       case 1:
-        return <Trophy className="h-8 w-8 text-warning" />;
+        return <Trophy className="h-10 w-10 text-yellow-500" />;
       case 2:
-        return <Medal className="h-8 w-8 text-muted-foreground" />;
+        return <Award className="h-7 w-7 text-gray-400" />;
       case 3:
-        return <Award className="h-8 w-8 text-warning" />;
+        return <Award className="h-7 w-7 text-yellow-700" />;
       default:
-        return <span className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-bold">{position}</span>;
+        return <span className="text-2xl font-bold text-muted-foreground">{position}</span>;
     }
   };
 
+  const getGoalBadgeInfo = (valueSold: number, goal: number): { text: string; className: string } => {
+    // ... (lógica do badge inalterada)
+    if (goal <= 0) return { text: "Sem Meta", className: badgeVariants({ variant: "outline" }) };
+
+    const percentage = (valueSold / goal) * 100;
+
+    if (percentage >= 100) {
+      return { text: "META BATIDA 🚀🚀", className: badgeVariants({ variant: "success" }) };
+    }
+    if (percentage >= 76) {
+      return { text: `Meta ${percentage.toFixed(0)}%`, className: badgeVariants({ variant: "default" }) };
+    }
+    if (percentage >= 46) {
+      return { text: `Meta ${percentage.toFixed(0)}%`, className: badgeVariants({ variant: "success" }) };
+    }
+    if (percentage >= 16) {
+      return { text: `Meta ${percentage.toFixed(0)}%`, className: badgeVariants({ variant: "warning" }) };
+    }
+    return { text: `Meta ${percentage.toFixed(0)}%`, className: badgeVariants({ variant: "destructive" }) };
+  };
+
   return (
-    <Card className="h-full transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
-      <CardHeader className="text-center pb-4">
+    <Card className="h-full flex flex-col transition-all duration-300">
+      <CardHeader className="text-center pb-2 pt-4">
         <CardTitle className="text-xl font-bold flex items-center justify-center gap-2">
-          <Trophy className="h-5 w-5 text-primary" />
+          <Trophy className="h-6 w-6 text-primary" />
           TOP 5 VENDEDORES
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2 flex-1 flex flex-col justify-between">
-        {displayData.map((seller) => (
-          <div 
-            key={seller.position}
-            className="p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
-          >
-            {/* Linha principal: Posição, Nome e Valor */}
-            <div className="flex items-center gap-2 mb-2">
-              <div className="flex-shrink-0">
+      
+      <CardContent className="flex-col justify-around p-5 space-y-12">
+        {displayData.map((seller) => {
+          // ATUALIZADO: `goalBadge` agora usa a meta real do vendedor
+          const goalBadge = getGoalBadgeInfo(seller.value, seller.goal);
+          
+          return (
+            <div 
+              key={seller.position} 
+              className="flex items-center gap-3 p-4 rounded-lg bg-muted/50"
+            >
+              <div className="flex-shrink-0 w-24 h-16 flex items-center justify-center rounded-lg bg-card border">
                 {getPositionIcon(seller.position)}
               </div>
-              
-              <div className="flex-1 min-w-0">
-                <div className="font-bold text-sm">{seller.name}</div>
-              </div>
-              
-              <div className="text-right">
-                <div className="font-bold text-sm text-primary">
-                  {seller.value > 0 ? `R$ ${seller.value.toLocaleString('pt-BR')}` : 'R$ 0'}
+
+              <div className="flex-1 flex flex-col justify-center min-w-0">
+                <div className="flex justify-between items-baseline">
+                  <p className="font-bold text-3xl truncate">{seller.name}</p>
+                  <p className="font-bold text-3xl text-primary whitespace-nowrap pl-3">
+                    {`R$ ${seller.value.toLocaleString('pt-BR')}`}
+                  </p>
+                </div>
+
+                <div className="flex justify-between items-center mt-1">
+                  <Badge variant="secondary" className="text-xs">{seller.team}</Badge>
+                  <Badge variant="outline">OC {seller.oc}</Badge>
+                  <Badge variant="outline">Conversão {seller.conversion}%</Badge>
+                  <div className={cn(goalBadge.className)}>{goalBadge.text}</div>
                 </div>
               </div>
             </div>
-            
-            {/* Linha inferior: Nº OC, % Conversão, Equipe */}
-            <div className="grid grid-cols-3 gap-1 text-xs">
-              <div className="text-center">
-                <div className="text-xs text-muted-foreground">Nº OC</div>
-                <div className="font-medium text-xs">{seller.oc}</div>
-              </div>
-              
-              <div className="text-center">
-                <div className="text-xs text-muted-foreground">% Conversão</div>
-                <div className="font-medium text-xs">{seller.conversion}%</div>
-              </div>
-              
-              <div className="text-center">
-                <div className="text-xs text-muted-foreground">Equipe</div>
-                <Badge variant="secondary" className="text-xs bg-muted text-muted-foreground px-1 py-0">
-                  {seller.team}
-                </Badge>
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </CardContent>
     </Card>
   );
