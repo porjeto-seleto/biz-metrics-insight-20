@@ -50,16 +50,20 @@ export const useAuth = () => {
 
   const checkAdminStatus = async (userId: string) => {
     try {
+      console.log('Checking admin status for user:', userId);
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
-        .eq('role', 'admin')
-        .single();
+        .eq('role', 'admin');
       
-      if (!error && data) {
+      console.log('Admin check result:', { data, error });
+      
+      if (!error && data && data.length > 0) {
+        console.log('User is admin');
         setIsAdmin(true);
       } else {
+        console.log('User is not admin');
         setIsAdmin(false);
       }
     } catch (error) {
