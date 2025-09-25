@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -7,7 +7,6 @@ export interface AuthState {
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
-  adminLoading: boolean;
 }
 
 export const useAuth = () => {
@@ -15,13 +14,11 @@ export const useAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [adminLoading, setAdminLoading] = useState(false);
   const [adminChecked, setAdminChecked] = useState(false);
 
-  const checkAdminStatus = useCallback(async (userId: string) => {
-    if (adminLoading || adminChecked) return;
+  const checkAdminStatus = async (userId: string) => {
+    if (adminChecked) return;
     
-    setAdminLoading(true);
     try {
       console.log('Checking admin status for user:', userId);
       const { data, error } = await supabase
@@ -44,15 +41,14 @@ export const useAuth = () => {
       console.error('Error checking admin status:', error);
       setIsAdmin(false);
       setAdminChecked(true);
-    } finally {
-      setAdminLoading(false);
     }
-  }, [adminLoading, adminChecked]);
+  };
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state change:', event, !!session?.user);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -62,7 +58,7 @@ export const useAuth = () => {
         setIsAdmin(false);
         
         // Check admin status when user changes
-        if (session?.user) {
+        if (session?.user && event !== 'SIGNED_OUT') {
           checkAdminStatus(session.user.id);
         }
       }
@@ -70,6 +66,7 @@ export const useAuth = () => {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', !!session?.user);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -80,7 +77,7 @@ export const useAuth = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [checkAdminStatus]);
+  }, []); // Empty dependency array to prevent loops
 
 
   const signUp = async (email: string, password: string) => {
@@ -114,7 +111,6 @@ export const useAuth = () => {
     session,
     loading,
     isAdmin,
-    adminLoading,
     signUp,
     signIn,
     signOut
