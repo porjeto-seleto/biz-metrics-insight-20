@@ -8,13 +8,13 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading, isAdmin, adminLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('ProtectedRoute check:', { user: !!user, loading, isAdmin, requireAdmin });
+    console.log('ProtectedRoute check:', { user: !!user, loading, isAdmin, requireAdmin, adminLoading });
     
-    if (!loading) {
+    if (!loading && !adminLoading) {
       if (!user) {
         console.log('No user, redirecting to auth');
         navigate('/auth');
@@ -27,9 +27,9 @@ export const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRout
         return;
       }
     }
-  }, [user, loading, isAdmin, requireAdmin, navigate]);
+  }, [user, loading, isAdmin, requireAdmin, adminLoading, navigate]);
 
-  if (loading) {
+  if (loading || (requireAdmin && adminLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>

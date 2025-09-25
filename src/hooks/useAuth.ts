@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -7,6 +7,7 @@ export interface AuthState {
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
+  adminLoading: boolean;
 }
 
 export const useAuth = () => {
@@ -14,41 +15,13 @@ export const useAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [adminChecked, setAdminChecked] = useState(false);
 
-  useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-        
-        // Check admin status when user changes
-        if (session?.user) {
-          setTimeout(() => {
-            checkAdminStatus(session.user.id);
-          }, 0);
-        } else {
-          setIsAdmin(false);
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-      
-      if (session?.user) {
-        checkAdminStatus(session.user.id);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const checkAdminStatus = async (userId: string) => {
+  const checkAdminStatus = useCallback(async (userId: string) => {
+    if (adminLoading || adminChecked) return;
+    
+    setAdminLoading(true);
     try {
       console.log('Checking admin status for user:', userId);
       const { data, error } = await supabase
@@ -66,11 +39,49 @@ export const useAuth = () => {
         console.log('User is not admin');
         setIsAdmin(false);
       }
+      setAdminChecked(true);
     } catch (error) {
       console.error('Error checking admin status:', error);
       setIsAdmin(false);
+      setAdminChecked(true);
+    } finally {
+      setAdminLoading(false);
     }
-  };
+  }, [adminLoading, adminChecked]);
+
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+        
+        // Reset admin state when user changes
+        setAdminChecked(false);
+        setIsAdmin(false);
+        
+        // Check admin status when user changes
+        if (session?.user) {
+          checkAdminStatus(session.user.id);
+        }
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+      
+      if (session?.user) {
+        checkAdminStatus(session.user.id);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [checkAdminStatus]);
+
 
   const signUp = async (email: string, password: string) => {
     const redirectUrl = `${window.location.origin}/`;
@@ -103,6 +114,7 @@ export const useAuth = () => {
     session,
     loading,
     isAdmin,
+    adminLoading,
     signUp,
     signIn,
     signOut
