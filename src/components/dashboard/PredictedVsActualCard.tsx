@@ -227,17 +227,7 @@ const PredictedVsActualCard = () => {
           PREVISTO VS EFETIVADO
         </CardTitle>
       </CardHeader>
-      <CardContent className="text-center space-y-4">
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <div className="text-sm font-medium text-muted-foreground mb-1">Previsto</div>
-            <div className="text-2xl font-bold text-primary">R$ {totalPredicted.toLocaleString('pt-BR')}</div>
-          </div>
-          <div>
-            <div className="text-sm font-medium text-muted-foreground mb-1">Efetivado</div>
-            <div className="text-2xl font-bold text-success">R$ {totalActual.toLocaleString('pt-BR')}</div>
-          </div>
-        </div>
+      <CardContent className="text-center space-y-6">
         
         <div className="flex items-center gap-4">
           {/* Botões verticais à esquerda */}
@@ -276,16 +266,20 @@ const PredictedVsActualCard = () => {
               {chartType === 'gauge' && renderGaugeChart()}
             </div>
             
-            {/* Legendas na parte inferior */}
+            {/* Legendas na parte inferior com valores dinâmicos */}
             {(chartType === 'line' || chartType === 'pie') && (
               <div className="flex items-center justify-center gap-6 mt-2">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-0.5 bg-blue-500"></div>
-                  <span className="text-xs text-muted-foreground">Previsto</span>
+                  <span className="text-xs text-muted-foreground">
+                    Previsto: R$ {totalPredicted.toLocaleString('pt-BR')}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-0.5 bg-green-500"></div>
-                  <span className="text-xs text-muted-foreground">Efetivado</span>
+                  <span className="text-xs text-muted-foreground">
+                    Efetivado: R$ {totalActual.toLocaleString('pt-BR')}
+                  </span>
                 </div>
               </div>
             )}
