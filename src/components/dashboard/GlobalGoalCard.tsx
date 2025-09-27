@@ -19,22 +19,34 @@ const GlobalGoalCard = () => {
   useEffect(() => {
     const fetchCurrentGoal = async () => {
       try {
-        // Get current month/year in format YYYY-MM
-        const currentPeriod = format(new Date(), 'yyyy-MM');
+        // Get current month/year for filtering monthly goals
+        const currentDate = new Date();
+        const currentMonth = format(currentDate, 'yyyy-MM');
         
         const { data: goalData, error: goalError } = await supabase
           .from('global_goals')
           .select('*')
-          .eq('period', currentPeriod)
           .eq('status', 'active')
-          .single();
+          .ilike('period', 'mensal:%'); // Filter for monthly goals
 
-        if (goalError && goalError.code !== 'PGRST116') { // PGRST116 = no rows found
+        if (goalError) {
           console.error('Erro ao buscar meta global:', goalError);
           return;
         }
 
-        if (goalData) {
+        // Find the active monthly goal for current month
+        const currentMonthGoal = goalData?.find(goal => {
+          const [periodType, dateRange] = goal.period.split(':');
+          if (periodType !== 'mensal') return false;
+          
+          const [startDateStr] = dateRange?.split('-') || [''];
+          if (!startDateStr) return false;
+          
+          const goalMonth = format(new Date(startDateStr), 'yyyy-MM');
+          return goalMonth === currentMonth;
+        });
+
+        if (currentMonthGoal) {
           // Get only the latest daily report (not sum of all reports)
           const { data: latestReport, error: reportsError } = await supabase
             .from('daily_reports')
@@ -45,14 +57,14 @@ const GlobalGoalCard = () => {
 
           if (reportsError) {
             console.error('Erro ao buscar relatório mais recente:', reportsError);
-            setCurrentGoal(goalData);
+            setCurrentGoal(currentMonthGoal);
             return;
           }
 
           const totalEffective = latestReport?.total_effective || 0;
 
           setCurrentGoal({
-            ...goalData,
+            ...currentMonthGoal,
             current_value: totalEffective
           });
         }
