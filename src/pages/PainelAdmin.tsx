@@ -10,9 +10,11 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { useAdminData } from "@/hooks/useAdminData";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { formatCurrencyBR } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 const PainelAdmin = () => {
@@ -406,13 +408,10 @@ const PainelAdmin = () => {
                     </div>
                     <div>
                       <Label htmlFor="goal-value">Valor Alvo (R$)</Label>
-                      <Input 
+                      <CurrencyInput 
                         id="goal-value" 
-                        type="number" 
-                        step="0.01"
-                        placeholder="0,00"
                         value={goalForm.targetValue}
-                        onChange={(e) => setGoalForm(prev => ({ ...prev, targetValue: e.target.value }))}
+                        onChange={(value) => setGoalForm(prev => ({ ...prev, targetValue: value.toString() }))}
                       />
                     </div>
                     <div className="flex items-end">
@@ -437,8 +436,8 @@ const PainelAdmin = () => {
                       <TableRow key={goal.id}>
                         <TableCell className="font-medium">{goal.title}</TableCell>
                         <TableCell>{goal.period}</TableCell>
-                        <TableCell>R$ {goal.target_value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
-                        <TableCell>R$ {goal.current_value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                        <TableCell>{formatCurrencyBR(goal.target_value)}</TableCell>
+                        <TableCell>{formatCurrencyBR(goal.current_value)}</TableCell>
                         <TableCell>
                           <Badge variant={
                             goal.status === 'active' ? 'default' : 

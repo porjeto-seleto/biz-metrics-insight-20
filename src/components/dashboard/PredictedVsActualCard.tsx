@@ -6,6 +6,7 @@ import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tool
 import { supabase } from "@/integrations/supabase/client";
 import { format, getDaysInMonth, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { formatCurrencyBR } from "@/lib/currency";
 
 const PredictedVsActualCard = () => {
   const [chartType, setChartType] = useState<'line' | 'pie' | 'gauge'>('line');
@@ -126,7 +127,7 @@ const PredictedVsActualCard = () => {
           tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
         />
         <Tooltip 
-          formatter={(value: any) => value ? `R$ ${value.toLocaleString('pt-BR')}` : 'N/A'}
+          formatter={(value: any) => value ? formatCurrencyBR(value) : 'N/A'}
           labelFormatter={(label) => `Dia ${label}`}
         />
         <Line 
@@ -166,7 +167,7 @@ const PredictedVsActualCard = () => {
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip formatter={(value: any) => `R$ ${value.toLocaleString('pt-BR')}`} />
+        <Tooltip formatter={(value: any) => formatCurrencyBR(value)} />
       </RechartsPieChart>
     </ResponsiveContainer>
   );
@@ -272,13 +273,13 @@ const PredictedVsActualCard = () => {
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-0.5 bg-blue-500"></div>
                   <span className="text-xs text-muted-foreground">
-                    Previsto: R$ {totalPredicted.toLocaleString('pt-BR')}
+                    Previsto: {formatCurrencyBR(totalPredicted)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-0.5 bg-green-500"></div>
                   <span className="text-xs text-muted-foreground">
-                    Efetivado: R$ {totalActual.toLocaleString('pt-BR')}
+                    Efetivado: {formatCurrencyBR(totalActual)}
                   </span>
                 </div>
               </div>

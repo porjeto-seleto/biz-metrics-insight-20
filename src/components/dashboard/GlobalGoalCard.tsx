@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { formatCurrencyBR } from "@/lib/currency";
 
 const GlobalGoalCard = () => {
   const [currentGoal, setCurrentGoal] = useState<{
@@ -99,7 +100,7 @@ const GlobalGoalCard = () => {
             {currentGoal.title}
           </div>
           <div className="text-3xl font-bold text-secondary mb-4">
-            R$ {currentGoal.target_value.toLocaleString('pt-BR')}
+            {formatCurrencyBR(currentGoal.target_value)}
           </div>
         </div>
         
@@ -133,10 +134,10 @@ const GlobalGoalCard = () => {
             <div className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-success" />
               <span className="font-medium text-success">Total Vendido Efetivado</span>
-              <span className="font-bold text-success">R$ {currentGoal.current_value.toLocaleString('pt-BR')}</span>
+              <span className="font-bold text-success">{formatCurrencyBR(currentGoal.current_value)}</span>
             </div>
             <span className="text-muted-foreground">
-              Faltam R$ {(currentGoal.target_value - currentGoal.current_value).toLocaleString('pt-BR')} para a meta
+              Faltam {formatCurrencyBR(currentGoal.target_value - currentGoal.current_value)} para a meta
             </span>
           </div>
         </div>

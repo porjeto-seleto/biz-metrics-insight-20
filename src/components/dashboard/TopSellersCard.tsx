@@ -6,6 +6,7 @@ import { Badge, badgeVariants } from "@/components/ui/badge";
 import { useSellers } from "@/hooks/useSellers";
 import { DailyReport } from "@/hooks/useDailyReports";
 import { cn } from "@/lib/utils";
+import { formatCurrencyBR } from "@/lib/currency";
 
 interface TopSellersCardProps {
   report: DailyReport;
@@ -98,7 +99,7 @@ const TopSellersCard = ({ report }: TopSellersCardProps) => {
                 <div className="flex justify-between items-baseline">
                   <p className="font-bold text-3xl truncate">{seller.name}</p>
                   <p className="font-bold text-3xl text-primary whitespace-nowrap pl-3">
-                    {`R$ ${seller.value.toLocaleString('pt-BR')}`}
+                    {formatCurrencyBR(seller.value)}
                   </p>
                 </div>
 

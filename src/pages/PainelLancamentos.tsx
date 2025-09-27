@@ -5,9 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { useDailyReports, RankingFormData } from "@/hooks/useDailyReports";
 import { useSellers } from "@/hooks/useSellers";
 import { useAuth } from "@/hooks/useAuth";
+import { parseCurrencyBR } from "@/lib/currency";
 
 const PainelLancamentos = () => {
   const { user, loading: authLoading } = useAuth();
@@ -132,7 +134,8 @@ const PainelLancamentos = () => {
   }, [currentReport]);
 
   const handleSaveReport = async () => {
-    const success = await saveReport(reportDate, parseFloat(totalEffective) || 0, topSellers, cashFlow, profitMargin);
+    const totalEffectiveValue = parseCurrencyBR(totalEffective);
+    const success = await saveReport(reportDate, totalEffectiveValue, topSellers, cashFlow, profitMargin);
   };
 
   const handlePullLastRecord = async () => {
@@ -213,13 +216,10 @@ const PainelLancamentos = () => {
               </div>
               <div>
                 <Label htmlFor="totalEffective">Total Efetivado (R$)</Label>
-                <Input
+                <CurrencyInput
                   id="totalEffective"
-                  type="number"
-                  step="0.01"
-                  placeholder="0,00"
                   value={totalEffective}
-                  onChange={(e) => setTotalEffective(e.target.value)}
+                  onChange={(value) => setTotalEffective(value.toString())}
                 />
               </div>
             </div>
@@ -281,13 +281,10 @@ const PainelLancamentos = () => {
                     </div>
                     <div>
                       <Label htmlFor={`value-${index}`}>Valor Vendido (R$)</Label>
-                      <Input 
+                      <CurrencyInput 
                         id={`value-${index}`}
-                        type="number"
-                        step="0.01"
-                        placeholder="0,00"
                         value={seller.value_sold}
-                        onChange={(e) => updateTopSeller(index, 'value_sold', parseFloat(e.target.value) || 0)}
+                        onChange={(value) => updateTopSeller(index, 'value_sold', value)}
                       />
                     </div>
                   </div>
@@ -340,24 +337,18 @@ const PainelLancamentos = () => {
                    <div className="grid grid-cols-2 gap-2">
                      <div>
                        <Label htmlFor={`cashflow-sold-${index}`}>Valor Vendido (R$)</Label>
-                       <Input 
+                       <CurrencyInput 
                          id={`cashflow-sold-${index}`}
-                         type="number"
-                         step="0.01"
-                         placeholder="0,00"
                          value={flow.value_sold}
-                         onChange={(e) => updateCashFlow(index, 'value_sold', parseFloat(e.target.value) || 0)}
+                         onChange={(value) => updateCashFlow(index, 'value_sold', value)}
                        />
                      </div>
                      <div>
                        <Label htmlFor={`received-${index}`}>Valor Recebido (R$)</Label>
-                       <Input 
+                       <CurrencyInput 
                          id={`received-${index}`}
-                         type="number"
-                         step="0.01"
-                         placeholder="0,00"
                          value={flow.value_received}
-                         onChange={(e) => updateCashFlow(index, 'value_received', parseFloat(e.target.value) || 0)}
+                         onChange={(value) => updateCashFlow(index, 'value_received', value)}
                        />
                      </div>
                    </div>

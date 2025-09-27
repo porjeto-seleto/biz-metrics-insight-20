@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { useDailyReports } from "@/hooks/useDailyReports";
 import { useSellers } from "@/hooks/useSellers";
 import { useEffect } from "react";
+import { formatCurrencyBR } from "@/lib/currency";
 
 interface CashFlowCardProps {
   currentDate?: Date;
@@ -84,13 +85,13 @@ const CashFlowCard = ({ currentDate = new Date() }: CashFlowCardProps) => {
               {/* Vendido */}
               <div className="text-center">
                 <div className="text-xs text-muted-foreground">Vendido</div>
-                <div className="font-bold text-xs">R$ {seller.sold.toLocaleString('pt-BR')}</div>
+                <div className="font-bold text-xs">{formatCurrencyBR(seller.sold)}</div>
               </div>
               
               {/* Recebido */}
               <div className="text-center">
                 <div className="text-xs text-muted-foreground">Recebido</div>
-                <div className="font-bold text-xs text-success">R$ {seller.received.toLocaleString('pt-BR')}</div>
+                <div className="font-bold text-xs text-success">{formatCurrencyBR(seller.received)}</div>
               </div>
             </div>
           </div>

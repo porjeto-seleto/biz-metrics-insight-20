@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from './use-toast';
+import { formatCurrencyBR } from '@/lib/currency';
 
 export interface Sale {
   id: string;
@@ -117,7 +118,7 @@ export const useSales = () => {
 
       toast({
         title: 'Venda criada com sucesso!',
-        description: `Venda de R$ ${saleData.sale_value.toLocaleString('pt-BR')} foi registrada.`,
+        description: `Venda de ${formatCurrencyBR(saleData.sale_value)} foi registrada.`,
       });
 
       await fetchSales();
